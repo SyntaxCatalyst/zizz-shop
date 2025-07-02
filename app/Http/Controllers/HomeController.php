@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product; 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\PterodactylPlan;
 
 class HomeController extends Controller
 {
@@ -17,7 +18,9 @@ class HomeController extends Controller
 
         $totalProducts = Product::count();
 
+        $pterodactylPlans = PterodactylPlan::all();
+
         // Kirim variabel $products ke view 'welcome'
-        return view('welcome', compact('products', 'totalUsers', 'totalProducts'));
+        return view('welcome', compact('products', 'totalUsers', 'totalProducts', 'pterodactylPlans'));
     }
 }

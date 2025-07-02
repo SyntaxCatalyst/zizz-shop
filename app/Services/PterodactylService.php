@@ -57,14 +57,12 @@ class PterodactylService
         }
         $eggAttributes = $eggResponse->json('attributes');
         
-        $environmentVariables = [];
-        if (isset($eggAttributes['relationships']['variables']['data'])) {
-            foreach ($eggAttributes['relationships']['variables']['data'] as $variable) {
-                $envVar = $variable['attributes']['env_variable'];
-                $defaultValue = $variable['attributes']['default_value'];
-                $environmentVariables[$envVar] = $defaultValue;
-            }
-        }
+        $environmentVariables = [
+    "INST" => "npm",
+    "USER_UPLOAD" => "0",
+    "AUTO_UPDATE" => "0",
+    "CMD_RUN" => "npm start"
+        ];
         
         
         // Membuat string deskripsi secara dinamis
@@ -88,11 +86,11 @@ class PterodactylService
                 "io" => 500,
                 "cpu" => (int) $orderData['cpu']
             ],
-            "feature_limits" => [ "databases" => 5, "backups" => 5, "allocations" => 5 ],
+            "feature_limits" => [ "databases" => 5, "backups" => 5 ],
             'deploy' => [
                 'locations' => [(int) $this->settings->pterodactyl_location_id],
                 'dedicated_ip' => false,
-                'port_range' => [],
+                'port_range' => []
             ],
         ];
 

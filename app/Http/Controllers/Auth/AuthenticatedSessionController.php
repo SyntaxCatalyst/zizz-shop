@@ -28,6 +28,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Cek peran pengguna setelah berhasil login
+        if (auth()->user()->role === 'admin') {
+    return redirect()->route('filament.admin.pages.dashboard');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

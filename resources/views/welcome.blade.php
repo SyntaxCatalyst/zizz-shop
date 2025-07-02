@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Zizz Shop') }} - Your Premium Shopping Destination</title>
+    <title>{{ config('app.name', 'Zizz Shop') }} - Hosting Store</title>
+    <link rel="icon" href="https://files.catbox.moe/5z7z6d.png">
     
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800,900&display=swap" rel="stylesheet" />
@@ -12,11 +12,31 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
+
         .text-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             background-clip: text;
+
+        /* Tambahkan ini untuk membuat gradien lebih besar dari teksnya */
+            background-size: 300% 300%;
+
+        /* Terapkan animasi */
+            animation: gradient-flow 4s ease-in-out infinite;
+        }
+
+        /* Keyframes untuk menganimasikan posisi gradien */
+        @keyframes gradient-flow {
+            0% {
+                background-position: 0% 50%;
+                }
+            50% {
+                background-position: 100% 50%;
+                }
+            100% {
+                background-position: 0% 50%;
+                }
         }
         
         .hero-gradient {
@@ -56,7 +76,6 @@
             50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
         }
         
-        /* iOS Style Navbar */
         .ios-navbar {
             background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(20px);
@@ -93,7 +112,6 @@
             opacity: 1;
         }
         
-        /* Desktop/Tablet Navbar - Left Side */
         @media (min-width: 768px) {
             .desktop-nav {
                 position: fixed;
@@ -104,6 +122,12 @@
                 width: auto;
                 border-radius: 32px;
                 padding: 16px;
+                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* Transisi untuk hide/show */
+            }
+            
+            /* Style baru untuk menyembunyikan navbar */
+            .desktop-nav-hidden {
+                transform: translateY(-50%) translateX(-150%);
             }
             
             .desktop-nav .nav-content {
@@ -136,7 +160,6 @@
             }
         }
         
-        /* Mobile Navbar - Bottom Dock */
         @media (max-width: 767px) {
             .mobile-nav {
                 position: fixed;
@@ -217,11 +240,18 @@
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans antialiased overflow-x-hidden">
-    <!-- Desktop/Tablet Navigation -->
-    <nav class="desktop-nav ios-navbar hidden md:block">
+    
+    <button id="nav-toggle-btn" class="hidden md:block fixed top-1/2 -translate-y-1/2 left-4 z-[51] w-10 h-10 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-500">
+        <svg id="hide-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <svg id="show-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+    
+    <nav id="desktop-nav" class="desktop-nav ios-navbar hidden md:block">
         <div class="nav-content flex">
-            <!-- <a href="/" class="brand text-gradient floating-animation">{{ config('app.name', 'Zizz Shop') }}</a> -->
-            
             <a href="#home" class="nav-item group">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -231,6 +261,11 @@
             <a href="#about" class="nav-item group">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </a>
+            <a href="#pterodactyl-plans" class="nav-item group">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
                 </svg>
             </a>
             
@@ -245,43 +280,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
             </a>
-            
-            <!-- Auth Buttons for Desktop -->
-            <!-- <div class="mt-6 pt-6 border-t border-gray-700/50">
-                @auth
-                    <a href="{{ route('dashboard') }}" class="auth-btn bg-gradient-to-r from-purple-500 to-blue-500 text-white block text-center mb-2">
-                        Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="auth-btn bg-gray-800/50 text-white block text-center mb-2 hover:bg-gray-700/50">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" class="auth-btn bg-gradient-to-r from-purple-500 to-blue-500 text-white block text-center">
-                        Register
-                    </a>
-                @endauth
-            </div> -->
         </div>
     </nav>
 
-    <!-- Mobile Navigation - Bottom Dock -->
     <nav class="mobile-nav ios-navbar md:hidden">
-        <!-- Auth Buttons for Mobile -->
-        <!-- <div class="auth-buttons">
-            @auth
-                <a href="{{ route('dashboard') }}" class="auth-btn bg-gradient-to-r from-purple-500 to-blue-500 text-white">
-                    Dashboard
-                </a>
-            @else
-                <a href="{{ route('login') }}" class="auth-btn bg-gray-800/50 text-white hover:bg-gray-700/50">
-                    Login
-                </a>
-                <a href="{{ route('register') }}" class="auth-btn bg-gradient-to-r from-purple-500 to-blue-500 text-white">
-                    Register
-                </a>
-            @endauth
-        </div> -->
-        
         <div class="nav-content flex">
             <a href="#home" class="nav-item group">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,6 +299,13 @@
                 <span class="nav-text">About</span>
             </a>
             
+            <a href="#pterodactyl-plans" class="nav-item group">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                </svg>
+                <span class="nav-text">Panel</span>
+            </a>
+
             <a href="#products" class="nav-item group">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -312,21 +321,17 @@
             </a>
         </div>
     </nav>
-
-    <!-- Hero Section -->
     <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <!-- Background Effects -->
         <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-purple-900/20 to-blue-900/20"></div>
         <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23667eea" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
         
-        <!-- Floating Elements -->
         <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl floating-animation"></div>
         <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl floating-animation" style="animation-delay: -3s;"></div>
         
         <div class="relative z-10 max-w-6xl mx-auto px-4 text-center">
             <div class="mb-6">
                 <span class="inline-block px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full text-sm font-medium border border-purple-500/30 glass-morphism">
-                    ✨ Welcome to the Future of Shopping
+                    ✨ Welcome to Hosting Store
                 </span>
             </div>
             
@@ -336,7 +341,8 @@
             </h1>
             
             <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Discover premium products with exceptional quality. Experience shopping like never before with our curated collection.
+                Temukan produk premium dengan kualitas terbaik.
+Rasakan pengalaman belanja yang berbeda bersama koleksi pilihan kami, mulai dari layanan hosting, sewa bot, hingga script WhatsApp siap pakai.
             </p>
 
 
@@ -355,35 +361,27 @@
                 <a href="{{ route('login') }}" class="group relative overflow-hidden px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full text-lg font-bold transition-all duration-300 hover:scale-105 pulse-glow">
                     <span class="relative z-10 flex items-center">
                         Log-in
-                        <!-- <svg class="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                        </svg> -->
-                    </span>
+                        </span>
                 </a>
                 
                 <a href="{{ route('register') }}" class="group px-8 py-4 glass-morphism rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105">
                     <span class="flex items-center">
                         Daftar
-                        <!-- <svg class="w-5 h-5 ml-2 transition-transform group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg> -->
-                    </span>
+                        </span>
                 </a>
             </div>
             @endauth
         </div>
     </section>
 
-    <!-- Section Divider -->
     <div class="section-divider h-px"></div>
 
-    <!-- About Section -->
     <section id="about" class="py-24 bg-gradient-to-br from-gray-800 to-gray-900 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20">
                 <h2 class="text-5xl md:text-6xl font-black text-gradient mb-6">About Us</h2>
                 <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                    We're passionate about delivering excellence in every product and service we offer.
+                    Kami hadir untuk memberikan layanan terbaik — mulai dari hosting, sewa bot, hingga jasa script premium dengan kualitas unggulan.
                 </p>
             </div>
             
@@ -396,7 +394,7 @@
                     </div>
                     <div class="text-4xl font-black text-blue-400 mb-2">{{ $totalUsers }}+</div>
                     <div class="text-gray-300 font-medium">Happy Customers</div>
-                    <p class="text-gray-400 text-sm mt-2">Trusted by thousands worldwide</p>
+                    <p class="text-gray-400 text-sm mt-2">Dipercaya banyak pelanggan lokal dan pembeli online — bukti kualitas layanan kami!</p>
                 </div>
                 
                 <div class="group text-center p-8 rounded-3xl glass-morphism card-hover">
@@ -407,7 +405,7 @@
                     </div>
                     <div class="text-4xl font-black text-purple-400 mb-2">{{ $totalProducts }}+</div>
                     <div class="text-gray-300 font-medium">Products Listed</div>
-                    <p class="text-gray-400 text-sm mt-2">Curated premium collection</p>
+                    <p class="text-gray-400 text-sm mt-2">Layanan premium, dipilih khusus buat kamu!</p>
                 </div>
                 
                 <div class="group text-center p-8 rounded-3xl glass-morphism card-hover">
@@ -417,23 +415,79 @@
                         </svg>
                     </div>
                     <div class="text-4xl font-black text-cyan-400 mb-2">5+</div>
-                    <div class="text-gray-300 font-medium">Years Experience</div>
+                    <div class="text-gray-300 font-medium">Tahun pengalaman</div>
                     <p class="text-gray-400 text-sm mt-2">Proven track record</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Section Divider -->
     <div class="section-divider h-px"></div>
 
-    <!-- Products Section -->
+      <section id="pterodactyl-plans" class="py-24 bg-gray-900 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl md:text-6xl font-black text-gradient mb-6">Pterodactyl Plans</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Performa tinggi, anti ribet, dan langsung siap pakai!
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                @forelse($pterodactylPlans as $plan)
+                <div class="group bg-gray-800/50 rounded-3xl overflow-hidden card-hover glass-morphism flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <div class="mb-4">
+                            <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full">
+                                Panel Pterodactyl Server
+                            </span>
+                        </div>
+                        
+                        <h3 class="font-bold text-lg text-white mb-2 group-hover:text-blue-300 transition-colors">
+                            {{ $plan->name }}
+                        </h3>
+
+                        <ul class="text-sm text-gray-300 space-y-2 mb-6">
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>CPU: {{ $plan->cpu }}%</li>
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>RAM: {{ $plan->ram }} MB</li>
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Disk: {{ $plan->disk }} MB</li>
+                        </ul>
+                        
+                        <p class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
+                            Rp {{ number_format($plan->price, 0, ',', '.') }}
+                        </p>
+                    </div>
+                    
+                    
+                    <div class="p-6 pt-0">
+                        <a href="{{ route('dashboard') }}" class="block text-center w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+                            Order Now
+                        </a>
+                    </div>
+                </div>
+                @empty
+                <div class="col-span-full text-center py-20">
+                    <div class="w-32 h-32 mx-auto mb-6 bg-gray-800 rounded-full flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-400 mb-2">Tidak Ada Plan Hosting yang tersedia</h3>
+                    <p class="text-gray-500">Solusi hosting terbaik segera hadir! Pantau terus ya!.</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider h-px"></div>
+
     <section id="products" class="py-24 bg-gray-900 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20">
-                <h2 class="text-5xl md:text-6xl font-black text-gradient mb-6">Our Products</h2>
+                <h2 class="text-5xl md:text-6xl font-black text-gradient mb-6">Products Kami</h2>
                 <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                    Discover our carefully curated selection of premium products designed to exceed your expectations.
+                   Jelajahi koleksi layanan digital pilihan — dari hosting hingga script premium — semua dirancang untuk memenuhi kebutuhanmu secara maksimal.
                 </p>
             </div>
             
@@ -480,7 +534,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-400 mb-2">No Products Available</h3>
+                    <h3 class="text-2xl font-bold text-gray-400 mb-2">Tidak ada products yang tersedia</h3>
                     <p class="text-gray-500">Check back soon for amazing products!</p>
                 </div>
                 @endforelse
@@ -488,21 +542,19 @@
         </div>
     </section>
 
-    <!-- Section Divider -->
     <div class="section-divider h-px"></div>
 
-    <!-- Contact Section -->
     <section id="contact" class="py-24 bg-gradient-to-br from-gray-800 to-gray-900 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20">
                 <h2 class="text-5xl md:text-6xl font-black text-gradient mb-6">Contact Us</h2>
                 <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                    Ready to get started? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                   Tertarik menggunakan layanan kami?
+Hubungi kami sekarang, dan kami akan segera merespons pesan Anda.
                 </p>
             </div>
             
-            <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16">
-                <!-- Contact Info -->
+            <div class="max-w-6xl mx-auto grid lg:grid-cols-1 lg:justify-items-center gap-16">
                 <div class="space-y-8">
                     <div class="glass-morphism rounded-3xl p-8">
                         <h3 class="text-2xl font-bold mb-6 text-gradient">Get in Touch</h3>
@@ -538,46 +590,10 @@
                     </div>
                 </div>
                 
-                <!-- Contact Form -->
-                <div class="glass-morphism rounded-3xl p-8">
-                    @if (session('success'))
-                        <div class="bg-green-500/20 border border-green-500/30 text-green-300 p-4 rounded-xl mb-6 flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    
-                    <h3 class="text-2xl font-bold mb-6 text-gradient">Send us a Message</h3>
-                    
-                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
-                        @csrf
-                        <div>
-                            <label for="name" class="block text-sm font-semibold mb-2 text-gray-300">Name</label>
-                            <input type="text" name="name" id="name" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" required>
-                        </div>
-                        
-                        <div>
-                            <label for="email" class="block text-sm font-semibold mb-2 text-gray-300">Email</label>
-                            <input type="email" name="email" id="email" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" required>
-                        </div>
-                        
-                        <div>
-                            <label for="message" class="block text-sm font-semibold mb-2 text-gray-300">Message</label>
-                            <textarea name="message" id="message" rows="4" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 pulse-glow">
-                            Send Message
-                        </button>
-                    </form>
                 </div>
-            </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="border-t border-gray-800/50 py-12 bg-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
@@ -691,6 +707,45 @@
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(el);
+        });
+
+        // === SCRIPT BARU UNTUK HIDE/SHOW NAVBAR ===
+        document.addEventListener('DOMContentLoaded', () => {
+            const nav = document.getElementById('desktop-nav');
+            const toggleBtn = document.getElementById('nav-toggle-btn');
+            const hideIcon = document.getElementById('hide-icon');
+            const showIcon = document.getElementById('show-icon');
+
+            if (!nav || !toggleBtn || !hideIcon || !showIcon) return;
+
+            const updateNavState = (isHidden) => {
+                if (isHidden) {
+                    nav.classList.add('desktop-nav-hidden');
+                    hideIcon.classList.add('hidden');
+                    showIcon.classList.remove('hidden');
+                    // Geser tombol ke kiri agar menempel di tepi layar
+                    toggleBtn.style.left = '1rem'; 
+                } else {
+                    nav.classList.remove('desktop-nav-hidden');
+                    hideIcon.classList.remove('hidden');
+                    showIcon.classList.add('hidden');
+                    // Kembalikan posisi tombol di samping navbar
+                    toggleBtn.style.left = '6.5rem'; // Sesuaikan nilai ini jika lebar navbar berubah
+                }
+            };
+
+            // Cek localStorage saat halaman dimuat
+            const isNavHidden = localStorage.getItem('isNavHidden') === 'true';
+            updateNavState(isNavHidden);
+
+            // Tambahkan event listener ke tombol
+            toggleBtn.addEventListener('click', () => {
+                const currentState = nav.classList.contains('desktop-nav-hidden');
+                // Simpan state baru ke localStorage
+                localStorage.setItem('isNavHidden', !currentState);
+                // Update tampilan
+                updateNavState(!currentState);
+            });
         });
     </script>
 </body>

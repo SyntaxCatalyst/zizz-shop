@@ -14,7 +14,8 @@ use App\Http\Controllers\ContactMessageController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+//remove 'verified' ini this middleware
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
