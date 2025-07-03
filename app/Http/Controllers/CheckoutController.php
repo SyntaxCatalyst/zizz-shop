@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
+use App\Services\PterodactylService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -72,6 +73,8 @@ class CheckoutController extends Controller
         return view('checkout.payment', compact('order'));
     }
 
+    
+
     public function checkStatus(Order $order)
     {
         $settings = Setting::first();
@@ -79,61 +82,71 @@ class CheckoutController extends Controller
             return response()->json(['status' => 'unauthorized'], 403);
         }
 
+        // Jika order sudah tidak pending, langsung return status paid
         if ($order->status !== 'pending') {
             return response()->json(['status' => 'paid', 'redirect_url' => route('orders.index')]);
         }
 
-        $response = Http::get("https://gateway.okeconnect.com/api/mutasi/qris/{$settings->okeconnect_merchant_id}/{$settings->okeconnect_api_key}");
+        $response = Http::get("https://cloud-rest-api-tau.vercel.app/api/orkut/cekstatus?apikey=mahiru&merchant={$settings->okeconnect_merchant_id}&keyorkut={$settings->okeconnect_api_key}");
 
-        if ($response->failed() || $response->json('status') !== 'success') {
+        if ($response->failed()) {
             return response()->json(['status' => 'pending']);
         }
 
-        $mutations = $response->json('data');
+        // Ambil data response sebagai array
+        $mutation = $response->json();
+        
+        // Periksa apakah ada data mutation
+        if (empty($mutation) || !isset($mutation['amount'])) {
+            return response()->json(['status' => 'pending']);
+        }
+
         $paymentFound = false;
 
-        foreach ($mutations as $mutation) {
-            $mutationTime = \Carbon\Carbon::parse($mutation['date']);
-            if ((int)$mutation['amount'] === (int)$order->total_amount && $mutationTime->isAfter($order->created_at->subMinutes(1))) {
-                $paymentFound = true;
-                break;
-            }
+        // Parse tanggal dari mutation
+        $mutationTime = \Carbon\Carbon::parse($mutation['date']);
+        
+        // Cek apakah amount cocok dan waktu setelah order dibuat
+        if ((int)$mutation['amount'] === (int)$order->total_amount && 
+            $mutationTime->isAfter($order->created_at->subMinutes(1))) {
+            $paymentFound = true;
         }
 
         if ($paymentFound) {
+            // Update status ke processing terlebih dahulu
             $order->update(['status' => 'processing']);
 
             // Cek apakah ini order Pterodactyl
-    $paymentDetails = $order->payment_details;
-    if (isset($paymentDetails['metadata']['is_pterodactyl_order']) && $paymentDetails['metadata']['is_pterodactyl_order']) {
-        try {
-            // Panggil Pterodactyl Service untuk membuat server
-            $pterodactylService = new \App\Services\PterodactylService();
-            
-            $serverDetails = $pterodactylService->createServer($paymentDetails['metadata'], $order->user->email, $order->user->id);
+            $paymentDetails = $order->payment_details;
+            if (isset($paymentDetails['metadata']['is_pterodactyl_order']) && $paymentDetails['metadata']['is_pterodactyl_order']) {
+                try {
+                    // Panggil Pterodactyl Service untuk membuat server
+                    $pterodactylService = new PterodactylService();
+                    
+                    $serverDetails = $pterodactylService->createServer($paymentDetails['metadata'], $order->user->email, $order->user->id);
 
-            // Update order dengan detail server & set status completed
-            $newPaymentDetails = array_merge($paymentDetails, ['server_details' => $serverDetails]);
-            $order->update([
-                'status' => 'completed',
-                'payment_details' => $newPaymentDetails,
-            ]);
+                    // Update order dengan detail server & set status completed
+                    $newPaymentDetails = array_merge($paymentDetails, ['server_details' => $serverDetails]);
+                    $order->update([
+                        'status' => 'completed',
+                        'payment_details' => $newPaymentDetails,
+                    ]);
 
-            // Siapkan URL redirect ke halaman detail panel
-            $redirectUrl = route('orders.panel-details', $order);
+                    // Siapkan URL redirect ke halaman detail panel
+                    $redirectUrl = route('orders.panel-details', $order);
 
-            // Kirim respon untuk redirect ke halaman detail panel
-            return response()->json(['status' => 'paid', 'redirect_url' => $redirectUrl]);
+                    // Kirim respon untuk redirect ke halaman detail panel
+                    return response()->json(['status' => 'paid', 'redirect_url' => $redirectUrl]);
 
-        } catch (\Exception $e) {
-            // Jika pembuatan panel gagal, update status order menjadi 'failed'
-            $order->update(['status' => 'failed']);
-            \Illuminate\Support\Facades\Log::error('Pterodactyl Creation Failed: ' . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Jika pembuatan panel gagal, update status order menjadi 'failed'
+                    $order->update(['status' => 'failed']);
+                    \Illuminate\Support\Facades\Log::error('Pterodactyl Creation Failed: ' . $e->getMessage());
 
-            // Redirect ke halaman riwayat order dengan pesan error
-            return response()->json(['status' => 'paid', 'redirect_url' => route('orders.index') . '?error=ptero_failed']);
-        }
-    }
+                    // Redirect ke halaman riwayat order dengan pesan error
+                    return response()->json(['status' => 'paid', 'redirect_url' => route('orders.index') . '?error=ptero_failed']);
+                }
+            }
 
             // --- AWAL BLOK KODE BARU UNTUK PESAN WA ---
 
@@ -207,6 +220,9 @@ class CheckoutController extends Controller
                 'message_length' => strlen($finalMessage)
             ]);
 
+            // Update status ke completed setelah semua proses selesai
+            $order->update(['status' => 'completed']);
+
             // Buat URL WhatsApp
             $waUrl = "https://api.whatsapp.com/send?phone={$cleanPhoneNumber}&text=" . urlencode($finalMessage);
             
@@ -217,4 +233,21 @@ class CheckoutController extends Controller
         
         return response()->json(['status' => 'pending']);
     }
+
+    public function cancelOrder(Order $order)
+{
+    // Pastikan pengguna hanya bisa membatalkan order miliknya
+    if ($order->user_id !== Auth::id()) {
+        abort(403);
+    }
+
+    // Hanya batalkan jika statusnya masih 'pending'
+    if ($order->status === 'pending') {
+        $order->update(['status' => 'canceled']);
+        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    // Jika status sudah bukan pending, kembalikan ke riwayat pesanan
+    return redirect()->route('orders.index')->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+}
 }

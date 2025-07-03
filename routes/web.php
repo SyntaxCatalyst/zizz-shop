@@ -27,9 +27,11 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/orders/{order}/panel-details', [UserOrderController::class, 'showPanelDetails'])->name('orders.panel-details');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/{order}/cancel', [CheckoutController::class, 'cancelOrder'])->name('checkout.cancel');
     Route::get('/orders/{order}/payment', [CheckoutController::class, 'showPayment'])->name('checkout.payment');
     Route::get('/orders/{order}/status', [CheckoutController::class, 'checkStatus'])->name('checkout.status');
     Route::get('/my-orders', [UserOrderController::class, 'index'])->name('orders.index');
+    
     
     Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');

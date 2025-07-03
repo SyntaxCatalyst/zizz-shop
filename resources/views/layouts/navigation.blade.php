@@ -1,5 +1,4 @@
 <nav x-data="{ open: false }" class="glass-morphism sticky top-4 z-50 mx-auto mt-4 max-w-7xl rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-gray-900/80 via-gray-800/80 to-purple-900/80 shadow-2xl backdrop-blur-xl">
-    <!-- Animated gradient border -->
     <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-20 blur-sm"></div>
     
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -42,6 +41,22 @@
                         </span>
                         <div class="absolute inset-0 scale-0 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 transition-transform duration-300 group-hover:scale-100"></div>
                     </x-nav-link>
+
+                    {{-- AWAL PERUBAHAN: LINK ADMIN DESKTOP --}}
+                    @if (Auth::user() && Auth::user()->role === 'admin')
+                        <x-nav-link :href="url('/admin')" :active="request()->is('admin*')"
+                            class="group relative px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-cyan-300">
+                            <span class="relative z-10 flex items-center">
+                                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                {{ __('Admin Panel') }}
+                            </span>
+                            <div class="absolute inset-0 scale-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-orange-500/20 transition-transform duration-300 group-hover:scale-100"></div>
+                        </x-nav-link>
+                    @endif
+                    {{-- AKHIR PERUBAHAN --}}
+
                 </div>
             </div>
 
@@ -97,7 +112,6 @@
                 </x-dropdown>
             </div>
 
-            <!-- Mobile menu button -->
             <div class="-mr-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center rounded-lg border border-cyan-500/30 bg-gray-800/60 p-2 text-cyan-300 backdrop-blur-sm transition-all duration-300 hover:bg-gray-700/80 hover:text-cyan-200 focus:bg-gray-700/80 focus:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -109,7 +123,6 @@
         </div>
     </div>
 
-    <!-- Mobile menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="border-t border-gray-700/50 bg-gradient-to-b from-gray-800/80 to-gray-900/80 backdrop-blur-xl">
             <div class="space-y-1 px-4 pb-3 pt-4">
@@ -137,6 +150,19 @@
                     </svg>
                     {{ __('Cart') }}
                 </x-responsive-nav-link>
+                
+                {{-- AWAL PERUBAHAN: LINK ADMIN MOBILE --}}
+                @if (Auth::user() && Auth::user()->role === 'admin')
+                    <x-responsive-nav-link :href="url('/admin')" :active="request()->is('admin*')"
+                        class="flex items-center rounded-lg px-3 py-2 text-base font-medium text-cyan-100 transition-all duration-200 hover:bg-gradient-to-r hover:from-pink-500/20 hover:to-orange-500/20 hover:text-white">
+                        <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        {{ __('Admin Panel') }}
+                    </x-responsive-nav-link>
+                @endif
+                {{-- AKHIR PERUBAHAN --}}
+
             </div>
 
             <div class="border-t border-gray-700/50 pb-3 pt-4">

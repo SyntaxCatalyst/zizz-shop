@@ -3,7 +3,7 @@
          x-init="startTimer(); startPolling();"
          class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg my-10">
 
-        <div x-show="!paymentSuccess">
+        <div x-show="!paymentSuccess && !paymentExpired">
             <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">Selesaikan Pembayaran</h2>
             <p class="text-center text-gray-600 dark:text-gray-400 mb-6">Pindai QR Code di bawah ini dalam <span x-text="timer.display" class="font-bold text-red-500">10:00</span></p>
 
@@ -25,20 +25,42 @@
                     <p class="text-xs text-gray-500 dark:text-gray-500 mt-4 text-center">{{ $settings->receipt_footer_text }}</p>
                 @endif
             </div>
+
+            {{-- AWAL PERUBAHAN: Tombol Batal Pembelian --}}
+            <div class="mt-6 text-center">
+                <form action="{{ route('checkout.cancel', $order) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Batal Pembelian
+                    </button>
+                </form>
+            </div>
+            {{-- AKHIR PERUBAHAN --}}
+
         </div>
 
         <div x-show="paymentSuccess" style="display: none;" class="text-center py-8">
              <svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <h2 class="text-2xl font-bold text-green-500 mt-4">Pembayaran Berhasil!</h2>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">Mengarahkan Anda ke WhatsApp...</p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Mengarahkan Anda...</p>
+        </div>
+
+        <div x-show="paymentExpired" style="display: none;" class="text-center py-8">
+            <svg class="w-16 h-16 mx-auto text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h2 class="text-2xl font-bold text-red-500 mt-4">Pembayaran Kadaluarsa</h2>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Waktu pembayaran telah habis.</p>
+            <a href="{{ route('home') }}" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kembali ke Beranda</a>
         </div>
     </div>
 
+    {{-- Script Alpine.js tidak perlu diubah, jadi biarkan saja --}}
     <script>
         function paymentGateway(expirationTime, statusUrl) {
             return {
                 paymentSuccess: false,
+                paymentExpired: false,
                 pollingInterval: null,
+                isProcessing: false, // Flag untuk mencegah multiple processing
                 timer: {
                     interval: null,
                     expiry: new Date(expirationTime).getTime(),
@@ -51,7 +73,11 @@
                         if (distance < 0) {
                             clearInterval(this.timer.interval);
                             this.timer.display = 'EXPIRED';
-                            if(this.pollingInterval) clearInterval(this.pollingInterval);
+                            this.paymentExpired = true;
+                            if(this.pollingInterval) {
+                                clearInterval(this.pollingInterval);
+                                this.pollingInterval = null;
+                            }
                             return;
                         }
                         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -61,6 +87,12 @@
                 },
                 startPolling() {
                     this.pollingInterval = setInterval(() => {
+                        if (this.isProcessing || this.paymentSuccess || this.paymentExpired) {
+                            return;
+                        }
+
+                        this.isProcessing = true;
+                        
                         fetch(statusUrl)
                             .then(response => {
                                 if (!response.ok) throw new Error('Network response was not ok');
@@ -69,15 +101,31 @@
                             .then(data => {
                                 if (data.status === 'paid') {
                                     this.paymentSuccess = true;
-                                    clearInterval(this.pollingInterval);
-                                    clearInterval(this.timer.interval);
+                                    
+                                    if (this.pollingInterval) {
+                                        clearInterval(this.pollingInterval);
+                                        this.pollingInterval = null;
+                                    }
+                                    if (this.timer.interval) {
+                                        clearInterval(this.timer.interval);
+                                        this.timer.interval = null;
+                                    }
+                                    
                                     setTimeout(() => {
-                                        window.location.href = data.redirect_url;
-                                    }, 1500);
+                                        // Cek jika ada redirect_url di data, jika tidak, arahkan ke orders.index
+                                        if(data.redirect_url) {
+                                            window.location.href = data.redirect_url;
+                                        } else {
+                                            window.location.href = '{{ route('orders.index') }}';
+                                        }
+                                    }, 2000);
                                 }
                             })
                             .catch(error => {
                                 console.error('Polling Error:', error);
+                            })
+                            .finally(() => {
+                                this.isProcessing = false;
                             });
                     }, 5000);
                 }
