@@ -48,6 +48,7 @@ Forms\Components\TextInput::make('total_amount')
                     'processing' => 'Processing',
                     'completed' => 'Completed',
                     'failed' => 'Failed',
+                    'canceled' => 'Canceled',
                 ])
                 ->required(),
 
@@ -119,6 +120,7 @@ Forms\Components\TextInput::make('total_amount')
             'info' => 'processing',
             'success' => 'completed',
             'danger' => 'failed',
+            'secondary' => 'canceled',
         ])
         ->sortable(),
 

@@ -31,22 +31,29 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'nomor_hp' => [
+                'required',
+                'string',
+                'max:15',
+                'regex:/^\+?[0-9]{9,15}$/'
+            ],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'nomor_hp' => $request->nomor_hp,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
 
-        //Auth::login($user);
-        
-        return redirect()->route('login')->with('status', 'Registrasi berhasil! Silakan login.');
+            // Kalau mau auto-login setelah register:
+    // Auth::login($user);
+    // return redirect()->route('dashboard');
 
-        return redirect(route('dashboard', absolute: false));
-    }
+    return redirect()->route('login')->with('status', 'Registrasi berhasil! Silakan login.');
+}
 }

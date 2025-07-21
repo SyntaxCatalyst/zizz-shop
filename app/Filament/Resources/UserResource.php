@@ -27,6 +27,11 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('nomor_hp')
+                    ->tel()
+                    ->required()
+                    ->maxLength(15)
+                    ->label('Nomor Telepon'),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -54,6 +59,10 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('nomor_hp')
+                    ->label('Nomor Telepon')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
@@ -61,7 +70,7 @@ class UserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('role')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'admin' => 'success',
                         'user' => 'gray',
                         default => 'gray',

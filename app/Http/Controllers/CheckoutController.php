@@ -7,7 +7,6 @@ use App\Models\Setting;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 use App\Services\PterodactylService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -17,20 +16,18 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $settings = Setting::first();
-        // dd('Mulai proses checkout...');
+
         if (Cart::count() == 0) {
             return redirect()->route('home')->with('error', 'Keranjang Anda kosong.');
         }
 
-        $totalAmount = (int) Cart::total(0, '', ''); // Ambil total sebagai integer tanpa format
+        $totalAmount = (int) Cart::total(0, '', '');
 
-        // Panggil API Generate QRIS
         $response = Http::get('https://cloud-rest-api-tau.vercel.app/api/orkut/createpayment', [
-            'apikey' => 'mahiru', // Sesuai contoh, bisa diganti nanti jika perlu
+            'apikey' => 'mahiru',
             'amount' => $totalAmount,
             'codeqr' => $settings->qris_generator_codeqr,
         ]);
-
 
         if ($response->failed() || !$response->json('status')) {
             return back()->with('error', 'Gagal membuat kode QRIS, silakan coba lagi.');
@@ -38,16 +35,14 @@ class CheckoutController extends Controller
 
         $paymentData = $response->json('result');
 
-        // Simpan order ke database
         $order = Order::create([
             'user_id' => Auth::id(),
             'order_number' => 'INV-' . strtoupper(Str::random(8)),
             'total_amount' => $totalAmount,
             'status' => 'pending',
-            'payment_details' => $paymentData, // Simpan semua response dari API
+            'payment_details' => $paymentData,
         ]);
 
-        // Simpan item-item order
         foreach (Cart::content() as $item) {
             $order->items()->create([
                 'product_id' => $item->id,
@@ -56,109 +51,77 @@ class CheckoutController extends Controller
             ]);
         }
 
-        // Hapus keranjang setelah order dibuat
         Cart::destroy();
 
-        // Arahkan ke halaman pembayaran
         return redirect()->route('checkout.payment', $order);
     }
 
     public function showPayment(Order $order)
     {
-        // Pastikan pengguna hanya bisa melihat order miliknya
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return view('checkout.payment', compact('order'));
+        $settings = Setting::first();
+        return view('checkout.payment', compact('order', 'settings'));
     }
-
-    
 
     public function checkStatus(Order $order)
     {
         $settings = Setting::first();
+
         if ($order->user_id !== Auth::id()) {
             return response()->json(['status' => 'unauthorized'], 403);
         }
 
-        // Jika order sudah tidak pending, langsung return status paid
-        if ($order->status !== 'pending') {
-            return response()->json(['status' => 'paid', 'redirect_url' => route('orders.index')]);
-        }
-
-        $response = Http::get("https://cloud-rest-api-tau.vercel.app/api/orkut/cekstatus?apikey=mahiru&merchant={$settings->okeconnect_merchant_id}&keyorkut={$settings->okeconnect_api_key}");
-
-        if ($response->failed()) {
+        if ($order->status === 'pending') {
             return response()->json(['status' => 'pending']);
         }
 
-        // Ambil data response sebagai array
-        $mutation = $response->json();
-        
-        // Periksa apakah ada data mutation
-        if (empty($mutation) || !isset($mutation['amount'])) {
-            return response()->json(['status' => 'pending']);
-        }
-
-        $paymentFound = false;
-
-        // Parse tanggal dari mutation
-        $mutationTime = \Carbon\Carbon::parse($mutation['date']);
-        
-        // Cek apakah amount cocok dan waktu setelah order dibuat
-        if ((int)$mutation['amount'] === (int)$order->total_amount && 
-            $mutationTime->isAfter($order->created_at->subMinutes(1))) {
-            $paymentFound = true;
-        }
-
-        if ($paymentFound) {
-            // Update status ke processing terlebih dahulu
-            $order->update(['status' => 'processing']);
-
-            // Cek apakah ini order Pterodactyl
+        if (in_array($order->status, ['processing', 'completed'])) {
             $paymentDetails = $order->payment_details;
-            if (isset($paymentDetails['metadata']['is_pterodactyl_order']) && $paymentDetails['metadata']['is_pterodactyl_order']) {
-                try {
-                    // Panggil Pterodactyl Service untuk membuat server
-                    $pterodactylService = new PterodactylService();
-                    
-                    $serverDetails = $pterodactylService->createServer($paymentDetails['metadata'], $order->user->email, $order->user->id);
 
-                    // Update order dengan detail server & set status completed
+            if (
+                isset($paymentDetails['metadata']['is_pterodactyl_order']) &&
+                $paymentDetails['metadata']['is_pterodactyl_order'] &&
+                !isset($paymentDetails['server_details'])
+            ) {
+                try {
+                    $pterodactylService = new PterodactylService();
+                    $serverDetails = $pterodactylService->createServer(
+                        $paymentDetails['metadata'],
+                        $order->user->email,
+                        $order->user->id
+                    );
+
                     $newPaymentDetails = array_merge($paymentDetails, ['server_details' => $serverDetails]);
+
                     $order->update([
                         'status' => 'completed',
                         'payment_details' => $newPaymentDetails,
                     ]);
 
-                    // Siapkan URL redirect ke halaman detail panel
-                    $redirectUrl = route('orders.panel-details', $order);
-
-                    // Kirim respon untuk redirect ke halaman detail panel
-                    return response()->json(['status' => 'paid', 'redirect_url' => $redirectUrl]);
-
+                    return response()->json([
+                        'status' => 'paid',
+                        'redirect_url' => route('orders.panel-details', $order)
+                    ]);
                 } catch (\Exception $e) {
-                    // Jika pembuatan panel gagal, update status order menjadi 'failed'
+                    \Log::error('Pterodactyl Creation Failed: ' . $e->getMessage());
                     $order->update(['status' => 'failed']);
-                    \Illuminate\Support\Facades\Log::error('Pterodactyl Creation Failed: ' . $e->getMessage());
 
-                    // Redirect ke halaman riwayat order dengan pesan error
-                    return response()->json(['status' => 'paid', 'redirect_url' => route('orders.index') . '?error=ptero_failed']);
+                    return response()->json([
+                        'status' => 'paid',
+                        'redirect_url' => route('orders.index') . '?error=ptero_failed'
+                    ]);
                 }
             }
 
-            // --- AWAL BLOK KODE BARU UNTUK PESAN WA ---
+            $template = $settings->whatsapp_order_template ?? "Halo {nama_penerima}!\n\nTerima kasih atas pembayaran Anda.\n\n*Detail Pesanan:*\n🧾 *Nomor Order:* {order_number}\n\n{detail_pesanan}\n💳 *Total Pembayaran:* {total_pembayaran}\n\nPesanan Anda sedang diproses. Terima kasih!";
 
-            // Ambil template dari database settings
-            $template = $settings->whatsapp_order_template;
-
-            // Siapkan data-data dinamis
             $recipientName = $order->user->name ?? 'Customer';
             $totalPembayaran = 'Rp ' . number_format($order->total_amount, 0, ',', '.');
             $orderNumber = $order->order_number;
 
-            // Buat bagian detail pesanan secara terpisah (karena ada loop)
             $detailPesananText = '';
             foreach ($order->items as $item) {
                 $hargaProduk = 'Rp ' . number_format($item->price, 0, ',', '.');
@@ -168,86 +131,40 @@ class CheckoutController extends Controller
                                       "────────────────────────\n";
             }
 
-            // Cek apakah template ada dan tidak kosong
-            if (empty($template)) {
-                // Jika template kosong, buat default template
-                $template = "Halo {nama_penerima}!\n\n" .
-                           "Terima kasih atas pembayaran Anda.\n\n" .
-                           "*Detail Pesanan:*\n" .
-                           "🧾 *Nomor Order:* {order_number}\n\n" .
-                           "{detail_pesanan}\n" .
-                           "💳 *Total Pembayaran:* {total_pembayaran}\n\n" .
-                           "Pesanan Anda sedang diproses. Terima kasih!";
-            }
+            $finalMessage = str_replace(
+                ['{nama_penerima}', '{detail_pesanan}', '{total_pembayaran}', '{order_number}'],
+                [$recipientName, $detailPesananText, $totalPembayaran, $orderNumber],
+                $template
+            );
 
-            // Definisikan placeholder dan nilainya
-            $placeholders = [
-                '{nama_penerima}',
-                '{detail_pesanan}',
-                '{total_pembayaran}',
-                '{order_number}',
-            ];
-            $values = [
-                $recipientName,
-                $detailPesananText,
-                $totalPembayaran,
-                $orderNumber,
-            ];
-
-            // Ganti semua placeholder di template dengan nilai sebenarnya
-            $finalMessage = str_replace($placeholders, $values, $template);
-
-            // Bersihkan nomor WhatsApp dari spasi dan karakter tidak valid
             $cleanPhoneNumber = preg_replace('/[^0-9]/', '', $settings->support_whatsapp_number);
-            
-            // Pastikan nomor diawali dengan 62 (untuk Indonesia)
             if (substr($cleanPhoneNumber, 0, 1) === '0') {
                 $cleanPhoneNumber = '62' . substr($cleanPhoneNumber, 1);
             } elseif (substr($cleanPhoneNumber, 0, 2) !== '62') {
                 $cleanPhoneNumber = '62' . $cleanPhoneNumber;
             }
 
-            // Jika pesan masih kosong, buat pesan sederhana
-            if (empty($finalMessage) || strlen(trim($finalMessage)) === 0) {
-                $finalMessage = "Halo {$recipientName}!\n\nPembayaran untuk order {$orderNumber} sebesar {$totalPembayaran} telah diterima.\n\nTerima kasih!";
-            }
-
-            // Debug: Log untuk troubleshooting (opsional, bisa dihapus di production)
-            \Log::info('WhatsApp Debug Info:', [
-                'original_template' => $settings->whatsapp_order_template,
-                'final_message' => $finalMessage,
-                'phone_number' => $cleanPhoneNumber,
-                'message_length' => strlen($finalMessage)
-            ]);
-
-            // Update status ke completed setelah semua proses selesai
-            $order->update(['status' => 'completed']);
-
-            // Buat URL WhatsApp
             $waUrl = "https://api.whatsapp.com/send?phone={$cleanPhoneNumber}&text=" . urlencode($finalMessage);
-            
-            // --- AKHIR BLOK KODE BARU ---
+
+            $order->update(['status' => 'completed']);
 
             return response()->json(['status' => 'paid', 'redirect_url' => $waUrl]);
         }
-        
-        return response()->json(['status' => 'pending']);
+
+        return response()->json(['status' => $order->status]);
     }
 
     public function cancelOrder(Order $order)
-{
-    // Pastikan pengguna hanya bisa membatalkan order miliknya
-    if ($order->user_id !== Auth::id()) {
-        abort(403);
-    }
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-    // Hanya batalkan jika statusnya masih 'pending'
-    if ($order->status === 'pending') {
-        $order->update(['status' => 'canceled']);
-        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
-    }
+        if ($order->status === 'pending') {
+            $order->update(['status' => 'canceled']);
+            return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
+        }
 
-    // Jika status sudah bukan pending, kembalikan ke riwayat pesanan
-    return redirect()->route('orders.index')->with('error', 'Pesanan ini tidak dapat dibatalkan.');
-}
+        return redirect()->route('orders.index')->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+    }
 }

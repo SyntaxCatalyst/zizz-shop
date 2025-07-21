@@ -16,7 +16,7 @@ return new class extends Migration
     $table->foreignId('user_id')->constrained()->onDelete('cascade');
     $table->string('order_number')->unique();
     $table->decimal('total_amount', 15, 2);
-    $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+    $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'canceled'])->default('pending');
     $table->json('payment_details')->nullable(); // Untuk menyimpan info dari API QRIS
     $table->timestamps();
 });

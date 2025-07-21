@@ -15,6 +15,8 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        @stack('scripts')
+
         <style>
             /* Enhanced styles for dark theme with cyan, purple, and blue colors */
             body {
