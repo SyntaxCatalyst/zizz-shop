@@ -78,7 +78,7 @@ class CheckoutController extends Controller
             return response()->json(['status' => 'pending']);
         }
 
-        if (in_array($order->status, ['processing', 'completed'])) {
+        if (in_array($order->status, ['processing'])) {
             $paymentDetails = $order->payment_details;
 
             if (
@@ -88,11 +88,13 @@ class CheckoutController extends Controller
             ) {
                 try {
                     $pterodactylService = new PterodactylService();
-                    $serverDetails = $pterodactylService->createServer(
-                        $paymentDetails['metadata'],
-                        $order->user->email,
-                        $order->user->id
-                    );
+                    $generatedEmail = Str::slug($order->user->name, '.') . '@zizzmarket.my.id';
+
+$serverDetails = $pterodactylService->createServer(
+    $paymentDetails['metadata'],
+    $generatedEmail,
+    $order->user->id
+);
 
                     $newPaymentDetails = array_merge($paymentDetails, ['server_details' => $serverDetails]);
 

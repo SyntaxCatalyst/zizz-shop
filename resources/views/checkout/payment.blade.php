@@ -118,8 +118,7 @@
                                     if (this.timer.interval) clearInterval(this.timer.interval);
 
                                     setTimeout(() => {
-                                        window.location.href = data.redirect_url || '{{ route('
-                                        orders.index ') }}';
+                                        window.location.href = data.redirect_url || '{{ route('orders.index') }}';
                                     }, 2000);
                                 }
                             })
