@@ -61,6 +61,77 @@
             </div>
 
             <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                @php
+    $unreadMessages = auth()->user()->messages()->where('is_read', false)->count();
+    $recentMessages = auth()->user()->messages()->latest()->take(5)->get();
+@endphp
+
+{{-- Komponen Notifikasi Pesan --}}
+<div class="relative mr-4" x-data="{ open: false }">
+    {{-- Tombol Ikon Pesan --}}
+    <button @click="open = !open" class="relative group">
+        <svg class="h-6 w-6 text-cyan-300 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+
+        {{-- Indikator titik merah jika ada pesan baru --}}
+        @if ($unreadMessages > 0)
+            <span class="absolute flex h-3 w-3 top-[-2px] right-[-2px]">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+        @endif
+    </button>
+
+    {{-- Dropdown / Pop-up Konten --}}
+    <div
+        x-show="open"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95"
+        @click.away="open = false"
+        x-cloak
+        class="absolute right-0 z-50 mt-2 w-80 max-w-sm rounded-lg border border-cyan-500/20 bg-gray-900/95 backdrop-blur-sm text-white shadow-xl"
+    >
+        <div class="p-3 font-semibold border-b border-cyan-500/10">
+            Pesan Masuk
+        </div>
+
+        <div class="max-h-80 overflow-y-auto custom-scrollbar">
+            @forelse ($recentMessages as $msg)
+                <div class="px-4 py-3 hover:bg-cyan-500/10 border-b border-cyan-500/10 transition-colors">
+                    <div class="flex justify-between items-start">
+                         <p class="font-medium pr-2 {{ !$msg->is_read ? 'text-cyan-300' : '' }}">{{ $msg->title }}</p>
+                         @if (!$msg->is_read)
+                            <span class="flex-shrink-0 h-2 w-2 mt-1.5 rounded-full bg-cyan-400" title="Belum dibaca"></span>
+                         @endif
+                    </div>
+                    <p class="text-sm text-gray-300 mt-1">{{ Str::limit($msg->body, 100) }}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-gray-400">{{ $msg->created_at->diffForHumans() }}</span>
+                        @if (!$msg->is_read)
+                            <form method="POST" action="{{ route('messages.read', $msg) }}">
+                                @csrf
+                                <button type="submit" class="text-xs text-cyan-400 hover:underline">Tandai dibaca</button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="px-4 py-8 text-center text-sm text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0l-8-4-8 4" />
+                    </svg>
+                    <p class="mt-2">Tidak ada pesan baru.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+</div>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="group inline-flex items-center rounded-xl border border-cyan-500/30 bg-gradient-to-r from-gray-800/60 to-purple-800/60 px-4 py-2 text-sm font-medium leading-4 text-cyan-100 backdrop-blur-sm transition-all duration-300 hover:border-cyan-400/50 hover:from-gray-700/80 hover:to-purple-700/80 hover:text-white hover:shadow-lg hover:shadow-cyan-500/25 focus:outline-none focus:ring-2 focus:ring-cyan-500/50">

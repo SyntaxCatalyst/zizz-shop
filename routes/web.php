@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Message;
 use App\Http\Controllers\CartController; 
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\DashboardController;
@@ -33,6 +34,13 @@ Route::middleware(['auth'])->group(function () {
     //Route::get('/orders/{order}/status', [CheckoutController::class, 'checkStatus'])->name('checkout.status');
     Route::get('/my-orders', [UserOrderController::class, 'index'])->name('orders.index');
     
+    Route::post('/messages/read/{message}', function (Message $message) {
+    if ($message->user_id === auth()->id()) {
+        $message->is_read = true;
+        $message->save();
+    }
+    return back();
+})->name('messages.read');
     
     Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');

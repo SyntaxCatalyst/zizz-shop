@@ -65,4 +65,8 @@ class User extends Authenticatable implements FilamentUser
         // Izinkan akses hanya jika peran user adalah 'admin'
         return $this->role === 'admin';
     }
+
+    public function messages() {
+        return $this->hasMany(Message::class);
+    }
 }

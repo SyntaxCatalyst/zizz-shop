@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
     <div x-data="paymentGateway('{{ $order->payment_details['expirationTime'] ?? now()->addMinutes(10)->toIso8601String() }}', '{{ route('checkout.status', $order) }}')"
         x-init="startTimer(); startPolling();"
         class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg my-10">
@@ -133,4 +133,4 @@
             }
         }
     </script>
-</x-guest-layout>
+</x-app-layout>
