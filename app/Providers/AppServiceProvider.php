@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Setting; // <-- PENTING: Gunakan Model Setting baru kita, bukan GeneralSettings
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider; // <-- PENTING: Gunakan Model Setting baru kita, bukan GeneralSettings
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
                     // Ambil baris pertama, atau buat baris kosong baru jika tabelnya kosong
                     return Setting::firstOrCreate([]);
                 });
-                
+
                 // Bagikan variabel $settings ke semua view
                 View::share('settings', $settings);
             } catch (\Exception $e) {

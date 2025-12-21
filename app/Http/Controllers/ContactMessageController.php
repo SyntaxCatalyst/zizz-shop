@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
-use App\Models\Setting;
-use App\Mail\ContactMessageReceived; // <-- Import Mailable kita
+use App\Models\Setting; // <-- Import Mailable kita
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail; // <-- Import Facade Mail
 
@@ -32,7 +32,7 @@ class ContactMessageController extends Controller
         } catch (\Exception $e) {
             // Jika email gagal dikirim, jangan sampai membuat user error.
             // Cukup catat error di log untuk diperbaiki nanti.
-            \Illuminate\Support\Facades\Log::error('Gagal mengirim email kontak: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email kontak: '.$e->getMessage());
         }
 
         return back()->with('success', 'Pesan Anda telah berhasil terkirim!');

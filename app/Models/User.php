@@ -4,11 +4,27 @@ namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-//use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * User Model
+ *
+ * Represents users in the system (both customers and admins).
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string|null $nomor_hp
+ * @property string $password
+ * @property string $role
+ * @property \Carbon\Carbon|null $email_verified_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -25,6 +41,8 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -51,22 +69,50 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Get all of the orders for the User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Get all orders for the user.
      */
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * Get all messages for the user.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     */
     public function canAccessPanel(Panel $panel): bool
     {
-        // Izinkan akses hanya jika peran user adalah 'admin'
         return $this->role === 'admin';
     }
 
-    public function messages() {
-        return $this->hasMany(Message::class);
+    /**
+     * Scope a query to only include customer users.
+     */
+    public function scopeCustomers(Builder $query): Builder
+    {
+        return $query->where('role', 'user');
+    }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a customer.
+     */
+    public function isCustomer(): bool
+    {
+        return $this->role === 'user';
     }
 }

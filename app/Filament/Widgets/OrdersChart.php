@@ -3,13 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Filament\Widgets\ChartWidget;
 use Carbon\Carbon;
+use Filament\Widgets\ChartWidget;
 
 class OrdersChart extends ChartWidget
 {
     protected static ?string $heading = 'Pesanan 7 Hari Terakhir';
+
     protected static ?int $sort = 2; // Urutan widget di dashboard
+
     protected static ?string $pollingInterval = '15s'; // Akan refresh setiap 15 detik
 
     protected function getData(): array

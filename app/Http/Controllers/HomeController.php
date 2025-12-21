@@ -2,25 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product; 
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\PterodactylPlan;
+use App\Services\ProductService;
 
+/**
+ * Controller for the home/welcome page.
+ */
 class HomeController extends Controller
 {
+    protected ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
+    /**
+     * Display the home page with products and statistics.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        // Ambil semua produk dari database, urutkan dari yang terbaru
-        $products = Product::with('category')->latest()->get();
+        $products = $this->productService->getAllProductsWithCategory();
+        $statistics = $this->productService->getProductStatistics();
+        $pterodactylPlans = $this->productService->getAllPterodactylPlans();
 
-        $totalUsers = User::where('role', 'user')->count();
-
-        $totalProducts = Product::count();
-
-        $pterodactylPlans = PterodactylPlan::all();
-
-        // Kirim variabel $products ke view 'welcome'
-        return view('welcome', compact('products', 'totalUsers', 'totalProducts', 'pterodactylPlans'));
+        return view('welcome', [
+            'products' => $products,
+            'totalUsers' => $statistics['total_users'],
+            'totalProducts' => $statistics['total_products'],
+            'pterodactylPlans' => $pterodactylPlans,
+        ]);
     }
 }

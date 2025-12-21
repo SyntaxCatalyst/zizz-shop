@@ -3,13 +3,12 @@
 namespace App\Filament\Pages;
 
 // 1. Gunakan BaseDashboard untuk menghindari konflik nama class
-use Filament\Pages\Dashboard as BaseDashboard;
-
-// 2. Sesuaikan path ini jika lokasi widget Anda berbeda (misal: App\Filament\Admin\Widgets)
-use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\GoToFrontendWidget;
-use App\Filament\Widgets\OrdersChart;
+// 2. Sesuaikan path ini jika lokasi widget Anda berbeda (misal: App\Filament\Admin\Widgets)
 use App\Filament\Widgets\LatestOrders;
+use App\Filament\Widgets\OrdersChart;
+use App\Filament\Widgets\StatsOverview;
+use Filament\Pages\Dashboard as BaseDashboard;
 
 // 3. Pastikan class Anda 'extends BaseDashboard'
 class Dashboard extends BaseDashboard
@@ -35,7 +34,7 @@ class Dashboard extends BaseDashboard
      *
      * @return int | string | array<string, int | string | null>
      */
-    public function getColumns(): int | string | array
+    public function getColumns(): int|string|array
     {
         // Atur agar widget ditampilkan dalam 3 kolom
         return 3;

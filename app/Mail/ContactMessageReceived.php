@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -33,7 +32,7 @@ class ContactMessageReceived extends Mailable
         return new Envelope(
             from: config('mail.from.address'),
             replyTo: $this->data['email'], // Memudahkan Anda me-reply langsung ke email pengunjung
-            subject: 'Pesan Baru dari Form Kontak: ' . ($this->data['subject'] ?? 'Tanpa Subjek'),
+            subject: 'Pesan Baru dari Form Kontak: '.($this->data['subject'] ?? 'Tanpa Subjek'),
         );
     }
 

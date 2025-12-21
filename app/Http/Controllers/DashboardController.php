@@ -2,20 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product; // <-- Jangan lupa use model
-use Illuminate\Http\Request;
-use App\Models\PterodactylPlan;
+use App\Services\ProductService;
 
+/**
+ * Controller for the user dashboard page.
+ */
 class DashboardController extends Controller
 {
+    protected ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
+    /**
+     * Display the dashboard page with products and plans.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        // Ambil data produk
-        $products = Product::latest()->get();
+        $products = $this->productService->getLatestProducts();
+        $pterodactylPlans = $this->productService->getAllPterodactylPlans();
+        
+        // User Stats
+        $user = auth()->user();
+        $stats = [
+            'total_orders' => $user->orders()->count(),
+            'pending_orders' => $user->orders()->where('status', 'pending')->count(),
+            'total_spent' => $user->orders()->where('status', 'paid')->sum('total_amount'), // Assuming 'paid' or 'completed' status
+        ];
 
-        $pterodactylPlans = PterodactylPlan::all();
-
-        // Tampilkan view 'dashboard' dan kirim data produk
-        return view('dashboard', compact('products', 'pterodactylPlans'));
+        return view('dashboard', compact('products', 'pterodactylPlans', 'stats'));
     }
 }

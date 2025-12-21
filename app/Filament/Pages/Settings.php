@@ -5,16 +5,17 @@ namespace App\Filament\Pages;
 use App\Models\Setting; // <-- Gunakan model kita
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Pages\Page;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
 use Illuminate\Support\Facades\Artisan;
 
 class Settings extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static string $view = 'filament.pages.settings';
 
-    public ?array $data = []; 
+    public ?array $data = [];
 
     public function mount(): void
     {
@@ -38,15 +39,15 @@ class Settings extends Page
                     ->schema([
                         Forms\Components\TextInput::make('qris_generator_codeqr')->label('Code QR Statis'),
                     ]),
-                    Forms\Components\Section::make('Integrasi Pterodactyl')
-    ->description('Pengaturan untuk API Panel Pterodactyl.')
-    ->schema([
-        Forms\Components\TextInput::make('pterodactyl_domain')->label('Domain Panel')->url()->placeholder('https://panel.domain.com'),
-        Forms\Components\TextInput::make('pterodactyl_api_key')->label('Application API Key (ptla_)')->password(),
-        Forms\Components\TextInput::make('pterodactyl_nest_id')->label('Nest ID')->numeric(),
-        Forms\Components\TextInput::make('pterodactyl_egg_id')->label('Egg ID')->numeric(),
-        Forms\Components\TextInput::make('pterodactyl_location_id')->label('Location ID')->numeric(),
-    ]),
+                Forms\Components\Section::make('Integrasi Pterodactyl')
+                    ->description('Pengaturan untuk API Panel Pterodactyl.')
+                    ->schema([
+                        Forms\Components\TextInput::make('pterodactyl_domain')->label('Domain Panel')->url()->placeholder('https://panel.domain.com'),
+                        Forms\Components\TextInput::make('pterodactyl_api_key')->label('Application API Key (ptla_)')->password(),
+                        Forms\Components\TextInput::make('pterodactyl_nest_id')->label('Nest ID')->numeric(),
+                        Forms\Components\TextInput::make('pterodactyl_egg_id')->label('Egg ID')->numeric(),
+                        Forms\Components\TextInput::make('pterodactyl_location_id')->label('Location ID')->numeric(),
+                    ]),
                 Forms\Components\Section::make('Kontak & Sosial Media')
                     ->schema([
                         Forms\Components\TextInput::make('support_whatsapp_number')->label('Nomor WhatsApp CS'),
@@ -54,14 +55,14 @@ class Settings extends Page
                         Forms\Components\TextInput::make('support_instagram_url')->label('URL Instagram')->url(),
                         Forms\Components\TextInput::make('support_facebook_url')->label('URL Facebook')->url(),
                     ]),
-                 Forms\Components\Section::make('Template Notifikasi')
-    ->schema([
-        Forms\Components\Textarea::make('whatsapp_order_template')
-            ->label('Template Pesan WhatsApp untuk Pesanan Baru')
-            ->rows(15)
-            ->helperText("Gunakan placeholder: {nama_penerima}, {detail_pesanan}, {total_pembayaran}, {order_number}")
-            ->required(),
-    ]),
+                Forms\Components\Section::make('Template Notifikasi')
+                    ->schema([
+                        Forms\Components\Textarea::make('whatsapp_order_template')
+                            ->label('Template Pesan WhatsApp untuk Pesanan Baru')
+                            ->rows(15)
+                            ->helperText('Gunakan placeholder: {nama_penerima}, {detail_pesanan}, {total_pembayaran}, {order_number}')
+                            ->required(),
+                    ]),
                 Forms\Components\Section::make('Pengaturan Struk')
                     ->schema([
                         Forms\Components\Textarea::make('receipt_footer_text')->label('Teks Footer Struk')->rows(3),

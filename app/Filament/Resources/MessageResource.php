@@ -3,17 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MessageResource\Pages;
-use App\Filament\Resources\MessageResource\RelationManagers;
 use App\Models\Message;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use App\Models\User;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class MessageResource extends Resource
 {
@@ -21,7 +18,6 @@ class MessageResource extends Resource
 
     // Ikon diganti agar lebih sesuai dengan pesan/surat
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
-
 
     public static function form(Form $form): Form
     {
@@ -44,7 +40,6 @@ class MessageResource extends Resource
                 ->required(),
         ]);
     }
-
 
     public static function table(Table $table): Table
     {
@@ -73,7 +68,7 @@ class MessageResource extends Resource
                     ->boolean(),
 
                 // Kolom untuk tanggal dibuat
-                 Tables\Columns\TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Tanggal Kirim')
                     ->dateTime('d M Y')
                     ->sortable(),
@@ -111,7 +106,7 @@ class MessageResource extends Resource
         return [
             'index' => Pages\ListMessages::route('/'),
             'create' => Pages\CreateMessage::route('/create'),
-            //'view' => Pages\ViewMessage::route('/{record}'), // Menambahkan halaman view
+            // 'view' => Pages\ViewMessage::route('/{record}'), // Menambahkan halaman view
             'edit' => Pages\EditMessage::route('/{record}/edit'),
         ];
     }

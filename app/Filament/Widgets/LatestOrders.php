@@ -2,16 +2,19 @@
 
 namespace App\Filament\Widgets; // Sesuaikan namespace jika perlu
 
+use App\Models\Order;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\Order;
 
 class LatestOrders extends BaseWidget
 {
     protected static ?int $sort = 3;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
+
     protected static ?string $pollingInterval = '15s'; // Akan refresh setiap 15 detik
+
     protected static ?string $heading = '5 Pesanan Terakhir';
 
     public function table(Table $table): Table

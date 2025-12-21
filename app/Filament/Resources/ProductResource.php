@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
     public static function form(Form $form): Form
@@ -23,17 +24,17 @@ class ProductResource extends Resource
             ->schema([
                 Forms\Components\Select::make('category_id')
                     ->relationship('category', 'name')->searchable()->preload()->label('Category')->required(),
-                
+
                 Forms\Components\TextInput::make('name')
                     ->required()->maxLength(255)->live(onBlur: true)
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                
+
                 Forms\Components\TextInput::make('slug')
                     ->required()->maxLength(255)->readOnly(),
-                
+
                 Forms\Components\RichEditor::make('description')
                     ->columnSpanFull(),
-                
+
                 Forms\Components\TextInput::make('price')
                     ->required()->numeric()->prefix('Rp'),
 
@@ -75,5 +76,4 @@ class ProductResource extends Resource
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
-
 }

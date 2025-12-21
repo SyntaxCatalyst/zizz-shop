@@ -35,9 +35,9 @@ class RegisteredUserController extends Controller
                 'required',
                 'string',
                 'max:15',
-                'regex:/^\+?[0-9]{9,15}$/'
+                'regex:/^\+?[0-9]{9,15}$/',
             ],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -50,10 +50,10 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-            // Kalau mau auto-login setelah register:
-    // Auth::login($user);
-    // return redirect()->route('dashboard');
+        // Kalau mau auto-login setelah register:
+        // Auth::login($user);
+        // return redirect()->route('dashboard');
 
-    return redirect()->route('login')->with('status', 'Registrasi berhasil! Silakan login.');
-}
+        return redirect()->route('login')->with('status', 'Registrasi berhasil! Silakan login.');
+    }
 }
