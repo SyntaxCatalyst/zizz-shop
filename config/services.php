@@ -41,4 +41,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URL'),
     ],
 
+    'pterodactyl' => [
+        'domain' => env('PTERODACTYL_DOMAIN'),
+        'key' => env('PTERODACTYL_API_KEY'),
+        'nest_id' => env('PTERODACTYL_NEST_ID'),
+        'egg_id' => env('PTERODACTYL_EGG_ID'),
+        'location_id' => env('PTERODACTYL_LOCATION_ID'),
+    ],
+
 ];

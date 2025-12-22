@@ -33,7 +33,7 @@ class UserOrderController extends Controller
      */
     public function showPanelDetails(Order $order)
     {
-        if ($order->user_id !== Auth::id()) {
+        if ((int)$order->user_id !== (int)Auth::id()) {
             abort(403);
         }
 

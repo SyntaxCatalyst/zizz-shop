@@ -62,8 +62,20 @@ class CheckoutController extends Controller
      */
     public function showPayment(Order $order)
     {
-        if ($order->user_id !== Auth::id()) {
-            abort(403);
+        // DEBUG LOGGING START
+        Log::info('Debug Payment Auth:', [
+            'order_id' => $order->id,
+            'order_user_id' => $order->user_id,
+            'order_user_id_type' => gettype($order->user_id),
+            'auth_id' => Auth::id(),
+            'auth_id_type' => gettype(Auth::id()),
+            'match' => $order->user_id === Auth::id()
+        ]);
+        // DEBUG LOGGING END
+
+        if ((int)$order->user_id !== (int)Auth::id()) { // Temporary type-safe comparison
+             Log::warning('Payment Access Denied due to mismatch');
+             abort(403, 'Unauthorized: Order ID ' . $order->user_id . ' vs Auth ID ' . Auth::id());
         }
 
         $settings = Setting::first();
@@ -80,7 +92,7 @@ class CheckoutController extends Controller
     {
         $settings = Setting::first();
 
-        if ($order->user_id !== Auth::id()) {
+        if ((int)$order->user_id !== (int)Auth::id()) {
             return response()->json(['status' => 'unauthorized'], 403);
         }
 
@@ -208,7 +220,7 @@ class CheckoutController extends Controller
      */
     public function cancelOrder(Order $order)
     {
-        if ($order->user_id !== Auth::id()) {
+        if ((int)$order->user_id !== (int)Auth::id()) {
             abort(403);
         }
 

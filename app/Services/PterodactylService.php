@@ -14,13 +14,26 @@ class PterodactylService
 
     protected $apiKey;
 
-    protected $settings;
+    protected $nestId;
+
+    protected $eggId;
+
+    protected $locationId;
 
     public function __construct()
     {
-        $this->settings = Setting::first();
-        $this->domain = rtrim($this->settings->pterodactyl_domain); // Remove trailing slash
-        $this->apiKey = $this->settings->pterodactyl_api_key;
+        $settings = Setting::first();
+
+        // Hybrid Config: DB first, then .env (via config)
+        $this->domain = rtrim($settings->pterodactyl_domain ?? '') ?: config('services.pterodactyl.domain');
+        // Ensure domain doesn't end with slash if config one did
+        $this->domain = rtrim($this->domain, '/');
+        
+        $this->apiKey = ($settings->pterodactyl_api_key ?? null) ?: config('services.pterodactyl.key');
+        
+        $this->nestId = ($settings->pterodactyl_nest_id ?? null) ?: config('services.pterodactyl.nest_id');
+        $this->eggId = ($settings->pterodactyl_egg_id ?? null) ?: config('services.pterodactyl.egg_id');
+        $this->locationId = ($settings->pterodactyl_location_id ?? null) ?: config('services.pterodactyl.location_id');
     }
 
     public function createServer(array $orderData, string $userEmail, int $websiteUserId)
@@ -44,10 +57,10 @@ class PterodactylService
 
             $serverResponse = Http::withToken($this->apiKey)
                 ->withHeaders([
-                    'Accept' => 'application/json',
+                    'Accept' => 'Application/vnd.pterodactyl.v1+json',
                     'Content-Type' => 'application/json',
                 ])
-                ->timeout(30)
+                ->timeout(60)
                 ->post("{$this->domain}/api/application/servers", $serverData);
 
             if ($serverResponse->failed()) {
@@ -111,10 +124,10 @@ class PterodactylService
 
         $userResponse = Http::withToken($this->apiKey)
             ->withHeaders([
-                'Accept' => 'application/json',
+                'Accept' => 'Application/vnd.pterodactyl.v1+json',
                 'Content-Type' => 'application/json',
             ])
-            ->timeout(30)
+            ->timeout(60)
             ->post("{$this->domain}/api/application/users", $userData);
 
         if ($userResponse->successful()) {
@@ -128,7 +141,7 @@ class PterodactylService
             // User mungkin sudah ada, cari berdasarkan email
             $usersResponse = Http::withToken($this->apiKey)
                 ->withHeaders([
-                    'Accept' => 'application/json',
+                    'Accept' => 'Application/vnd.pterodactyl.v1+json',
                 ])
                 ->timeout(30)
                 ->get("{$this->domain}/api/application/users?filter[email]={$userEmail}");
@@ -159,16 +172,16 @@ class PterodactylService
     {
         $eggResponse = Http::withToken($this->apiKey)
             ->withHeaders([
-                'Accept' => 'application/json',
+                'Accept' => 'Application/vnd.pterodactyl.v1+json',
             ])
-            ->timeout(30)
-            ->get("{$this->domain}/api/application/nests/{$this->settings->pterodactyl_nest_id}/eggs/{$this->settings->pterodactyl_egg_id}?include=variables");
+            ->timeout(60)
+            ->get("{$this->domain}/api/application/nests/{$this->nestId}/eggs/{$this->eggId}?include=variables");
 
         if ($eggResponse->failed()) {
             $errorBody = $eggResponse->json();
             Log::error('Failed to get egg data:', [
-                'nest_id' => $this->settings->pterodactyl_nest_id,
-                'egg_id' => $this->settings->pterodactyl_egg_id,
+                'nest_id' => $this->nestId,
+                'egg_id' => $this->eggId,
                 'response' => $errorBody,
             ]);
 
@@ -191,7 +204,7 @@ class PterodactylService
             'name' => $serverName,
             'description' => $description,
             'user' => $userId,
-            'egg' => (int) $this->settings->pterodactyl_egg_id,
+            'egg' => (int) $this->eggId,
             'docker_image' => 'ghcr.io/parkervcp/yolks:nodejs_20', // Hardcode seperti Node.js
             'startup' => $eggAttributes['startup'], // Ambil dari egg
             'environment' => [
@@ -213,7 +226,7 @@ class PterodactylService
                 'allocations' => 1, // Tambahkan allocations seperti Node.js
             ],
             'deploy' => [
-                'locations' => [(int) $this->settings->pterodactyl_location_id],
+                'locations' => [(int) $this->locationId],
                 'dedicated_ip' => false,
                 'port_range' => [],
             ],

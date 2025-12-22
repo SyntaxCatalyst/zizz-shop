@@ -30,23 +30,44 @@ class Settings extends Page
         // Definisi form tidak perlu diubah
         return $form
             ->schema([
-                Forms\Components\Section::make('Integrasi OkeConnect')
-                    ->schema([
-                        Forms\Components\TextInput::make('okeconnect_merchant_id')->label('Merchant ID'),
-                        Forms\Components\TextInput::make('okeconnect_api_key')->label('API Key')->password(),
-                    ]),
-                Forms\Components\Section::make('Integrasi Generator QRIS')
-                    ->schema([
-                        Forms\Components\TextInput::make('qris_generator_codeqr')->label('Code QR Statis'),
-                    ]),
+                // Forms\Components\Section::make('Integrasi OkeConnect')
+                //     ->schema([
+                //         Forms\Components\TextInput::make('okeconnect_merchant_id')->label('Merchant ID'),
+                //         Forms\Components\TextInput::make('okeconnect_api_key')->label('API Key')->password(),
+                //     ]),
+                // Forms\Components\Section::make('Integrasi Generator QRIS')
+                //     ->schema([
+                //         Forms\Components\TextInput::make('qris_generator_codeqr')->label('Code QR Statis'),
+                //     ]),
                 Forms\Components\Section::make('Integrasi Pterodactyl')
                     ->description('Pengaturan untuk API Panel Pterodactyl.')
                     ->schema([
-                        Forms\Components\TextInput::make('pterodactyl_domain')->label('Domain Panel')->url()->placeholder('https://panel.domain.com'),
-                        Forms\Components\TextInput::make('pterodactyl_api_key')->label('Application API Key (ptla_)')->password(),
-                        Forms\Components\TextInput::make('pterodactyl_nest_id')->label('Nest ID')->numeric(),
-                        Forms\Components\TextInput::make('pterodactyl_egg_id')->label('Egg ID')->numeric(),
-                        Forms\Components\TextInput::make('pterodactyl_location_id')->label('Location ID')->numeric(),
+                        Forms\Components\TextInput::make('pterodactyl_domain')
+                            ->label('Domain Panel')
+                            ->url()
+                            ->placeholder(fn () => config('services.pterodactyl.domain') ? 'Loaded from .env: ' . config('services.pterodactyl.domain') : 'https://panel.domain.com')
+                            ->helperText(fn () => config('services.pterodactyl.domain') ? 'Leave empty to use .env value' : null),
+
+                        Forms\Components\TextInput::make('pterodactyl_api_key')
+                            ->label('Application API Key (ptla_)')
+                            ->password()
+                            ->placeholder(fn () => config('services.pterodactyl.key') ? 'Loaded from .env' : null)
+                            ->helperText(fn () => config('services.pterodactyl.key') ? 'Leave empty to use .env value' : null),
+
+                        Forms\Components\TextInput::make('pterodactyl_nest_id')
+                            ->label('Nest ID')
+                            ->numeric()
+                            ->placeholder(fn () => config('services.pterodactyl.nest_id') ? 'Loaded from .env: ' . config('services.pterodactyl.nest_id') : null),
+
+                        Forms\Components\TextInput::make('pterodactyl_egg_id')
+                            ->label('Egg ID')
+                            ->numeric()
+                            ->placeholder(fn () => config('services.pterodactyl.egg_id') ? 'Loaded from .env: ' . config('services.pterodactyl.egg_id') : null),
+
+                        Forms\Components\TextInput::make('pterodactyl_location_id')
+                            ->label('Location ID')
+                            ->numeric()
+                            ->placeholder(fn () => config('services.pterodactyl.location_id') ? 'Loaded from .env: ' . config('services.pterodactyl.location_id') : null),
                     ]),
                 Forms\Components\Section::make('Kontak & Sosial Media')
                     ->schema([
