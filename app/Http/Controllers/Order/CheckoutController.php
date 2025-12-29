@@ -199,6 +199,17 @@ class CheckoutController extends Controller
             $template
         );
 
+        // Check for Telegram redirect preference
+        if (!empty($settings->support_telegram_username)) {
+            $username = str_replace('@', '', $settings->support_telegram_username);
+            $telegramUrl = "https://t.me/{$username}?text=" . urlencode($finalMessage);
+            
+            $this->orderService->updateOrderStatus($order, 'completed');
+            
+            return response()->json(['status' => 'paid', 'redirect_url' => $telegramUrl]);
+        }
+
+        // Fallback to WhatsApp if Telegram is not set
         $cleanPhoneNumber = preg_replace('/[^0-9]/', '', $settings->support_whatsapp_number);
         if (substr($cleanPhoneNumber, 0, 1) === '0') {
             $cleanPhoneNumber = '62'.substr($cleanPhoneNumber, 1);

@@ -72,6 +72,10 @@ class Settings extends Page
                 Forms\Components\Section::make('Kontak & Sosial Media')
                     ->schema([
                         Forms\Components\TextInput::make('support_whatsapp_number')->label('Nomor WhatsApp CS'),
+                        Forms\Components\TextInput::make('support_telegram_username')
+                            ->label('Username Telegram CS')
+                            ->placeholder('contoh: zizzshop_admin (tanpa @)')
+                            ->helperText('Jika diisi, pelanggan akan diarahkan ke Telegram setelah checkout produk.'),
                         Forms\Components\TextInput::make('support_email')->label('Alamat Email CS')->email(),
                         Forms\Components\TextInput::make('support_instagram_url')->label('URL Instagram')->url(),
                         Forms\Components\TextInput::make('support_facebook_url')->label('URL Facebook')->url(),

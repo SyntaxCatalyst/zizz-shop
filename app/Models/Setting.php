@@ -18,6 +18,7 @@ class Setting extends Model
         'support_email',
         'support_instagram_url',
         'support_facebook_url',
+        'support_telegram_username',
         'receipt_footer_text',
         'whatsapp_order_template',
         'pterodactyl_domain',
