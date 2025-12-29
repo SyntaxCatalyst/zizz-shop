@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Zizz Shop') }} - Premium Hosting & Digital Store</title>
+    <title>{{ config('app.name', 'ZizzMarket') }} - Premium Hosting & Digital Store</title>
     <link rel="icon" href="https://files.catbox.moe/5z7z6d.png">
     
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -29,7 +29,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="#" class="text-2xl font-black tracking-tighter text-white">
-                        {{ config('app.name', 'Zizz Shop') }}
+                        {{ config('app.name', 'ZizzMarket') }}
                     </a>
                 </div>
 
@@ -143,18 +143,12 @@
     <section id="about" class="py-32 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-3xl blur-2xl opacity-20 transform rotate-6"></div>
-                    <div class="glass-panel rounded-3xl p-8 relative grayscale hover:grayscale-0 transition-all duration-500">
-                         <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-800/50 h-32 rounded-2xl"></div>
-                            <div class="bg-gray-800/50 h-32 rounded-2xl"></div>
-                            <div class="bg-gray-800/50 h-32 rounded-2xl col-span-2"></div>
-                         </div>
+                    <div class="relative group">
+                         <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-3xl blur-2xl opacity-20 transform rotate-6 group-hover:rotate-3 transition-all duration-500"></div>
+                         <img src="{{ asset('logo-about.jpg') }}" alt="ZizzMarket Logo" class="relative rounded-3xl shadow-2xl w-full object-cover transform transition-transform duration-500 hover:scale-[1.02]">
                     </div>
-                </div>
                 <div>
-                    <h2 class="text-4xl font-bold mb-6">Why Choose Zizz Shop?</h2>
+                    <h2 class="text-4xl font-bold mb-6">Why Choose ZizzMarket?</h2>
                     <p class="text-gray-400 text-lg mb-8 leading-relaxed">
                         Kami tidak hanya menjual produk, kami memberikan solusi. Dengan infrastruktur server yang kuat dan koleksi produk digital yang terkurasi, kami memastikan kepuasan Anda adalah prioritas utama kami.
                     </p>
@@ -285,7 +279,7 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div class="col-span-2">
                     <a href="#" class="text-2xl font-black tracking-tighter text-white block mb-6">
-                        {{ config('app.name', 'Zizz Shop') }}
+                        {{ config('app.name', 'ZizzMarket') }}
                     </a>
                     <p class="text-gray-400 max-w-sm mb-6">
                         Providing the best digital products and hosting services to help you build your dream project.
@@ -325,7 +319,7 @@
                 </div>
             </div>
             <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-                <p>&copy; {{ date('Y') }} {{ config('app.name', 'Zizz Shop') }}. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'ZizzMarket') }}. All rights reserved.</p>
                 <p>Made with ❤️ for Gamers & Developers.</p>
             </div>
         </div>

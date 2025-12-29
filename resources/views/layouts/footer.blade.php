@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-center md:text-left">
-                <p class="text-sm text-gray-500">&copy; {{ date('Y') }} <span class="font-bold text-gray-300">{{ config('app.name', 'Zizz Shop') }}</span>. All rights reserved.</p>
+                <p class="text-sm text-gray-500">&copy; {{ date('Y') }} <span class="font-bold text-gray-300">{{ config('app.name', 'ZizzMarket') }}</span>. All rights reserved.</p>
             </div>
             
             <div class="flex items-center gap-6">

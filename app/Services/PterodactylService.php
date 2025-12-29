@@ -195,7 +195,7 @@ class PterodactylService
     private function buildServerData(array $orderData, int $websiteUserId, int $userId, array $eggAttributes)
     {
         $description = "Spek: {$orderData['ram']}MB RAM, {$orderData['disk']}MB Disk, {$orderData['cpu']}% CPU.".
-                       " Dipesan oleh Customer ID: {$websiteUserId} dari ".config('app.name', 'Zizz Shop');
+                       " Dipesan oleh Customer ID: {$websiteUserId} dari ".config('app.name', 'ZizzMarket');
 
         $serverName = $orderData['plan_name'].' - '.$orderData['panel_username'];
 

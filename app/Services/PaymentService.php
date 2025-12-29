@@ -70,7 +70,9 @@ class PaymentService
                 $data['qrImageUrl'] = $data['qr_image'];
             }
             if (isset($data['expired_at'])) {
-                $data['expirationTime'] = $data['expired_at'];
+                // Force expiration to be 10 minutes to match our auto-cancel policy
+                // We ignore the API's longer expiration (usually 60 mins)
+                $data['expirationTime'] = now()->addMinutes(10)->toIso8601String();
             }
 
             return $data;

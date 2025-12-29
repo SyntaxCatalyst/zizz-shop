@@ -27,7 +27,7 @@
         <div class="mb-8 text-center relative z-10">
             <a href="/" class="group">
                 <h1 class="text-5xl font-black tracking-tight text-gradient group-hover:scale-105 transition-transform duration-300">
-                    {{ config('app.name', 'Zizz Shop') }}
+                    {{ config('app.name', 'ZizzMarket') }}
                 </h1>
                 <p class="mt-2 text-sm text-gray-400 font-medium tracking-wide uppercaselt">Premium Digital Store</p>
             </a>

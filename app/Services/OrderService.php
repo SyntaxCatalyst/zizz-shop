@@ -22,7 +22,12 @@ class OrderService
      */
     public function createOrderFromCart(int $userId, array $paymentData): Order
     {
-        $totalAmount = (int) Cart::total(0, '', '');
+        // Add unique fee for unique payment amount
+        $uniqueFee = rand(0, 500); 
+        $totalAmount = (int) Cart::total(0, '', '') + $uniqueFee;
+
+        // Add unique fee to info
+        $paymentData['metadata']['unique_fee'] = $uniqueFee;
 
         $order = Order::create([
             'user_id' => $userId,

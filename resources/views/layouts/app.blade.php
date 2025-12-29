@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Zizz Shop') }}</title>
+        <title>{{ config('app.name', 'ZizzMarket') }}</title>
 
         <link rel="icon" href="https://files.catbox.moe/5z7z6d.png">
         

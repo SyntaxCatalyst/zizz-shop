@@ -102,7 +102,7 @@
                             <!-- Footer -->
                             <div class="mt-4 pt-4 border-t border-gray-700/50 flex justify-between items-center">
                                 <span class="text-sm text-gray-400">Total Payment</span>
-                                <span class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                                <span class="text-xl font-black text-white">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </span>
                             </div>

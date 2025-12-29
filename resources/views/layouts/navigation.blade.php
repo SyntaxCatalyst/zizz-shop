@@ -7,7 +7,7 @@
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
                         <h1 class="text-2xl font-black text-gradient">
-                            {{ config('app.name', 'Zizz Shop') }}
+                            {{ config('app.name', 'ZizzMarket') }}
                         </h1>
                     </a>
                 </div>

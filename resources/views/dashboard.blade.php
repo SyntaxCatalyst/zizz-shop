@@ -87,7 +87,7 @@
                         <div class="flex items-end justify-between">
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Harga</p>
-                                <p class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                                <p class="text-xl font-black text-white">
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 </p>
                             </div>
